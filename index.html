@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBMod 3D Advanced Admin Panel</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 3D SMOOTH DESIGN CSS --- */
+        :root {
+            --light-mint: #C2FCD4;
+            --main-teal: #07D0A4;
+            --dark-bg: #050a0a;
+            --card-bg: rgba(13, 26, 25, 0.9);
+            --input-inner: #0b1514;
+            --border-glass: rgba(7, 208, 164, 0.2);
+            --shadow-3d: 10px 10px 25px rgba(0,0,0,0.6), -5px -5px 15px rgba(255,255,255,0.02);
+            --inset-shadow: inset 3px 3px 6px rgba(0,0,0,0.8), inset -1px -1px 3px rgba(255,255,255,0.05);
+            --error-red: #ff4d4d;
+            --warning-orange: #ff9800;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 0%, #0c2b27 0%, var(--dark-bg) 100%);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        /* 3D FLOATING CARD */
+        .admin-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            width: 100%;
+            max-width: 380px;
+            padding: 25px;
+            border-radius: 24px;
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-3d);
+            margin-bottom: 25px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* HEADER LOGO STYLING */
+        .header-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .main-round-logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid var(--main-teal);
+            box-shadow: 0 0 12px rgba(7, 208, 164, 0.5);
+            object-fit: cover;
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--main-teal);
+            margin: 0;
+            font-size: 18px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(7, 208, 164, 0.6);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            color: var(--light-mint);
+            margin: 20px 0 12px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-glass);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            color: #8b949e;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* 3D INSET INPUTS */
+        input[type="text"], input[type="number"], textarea, .custom-date-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--input-inner);
+            border: 1px solid #1a2e2b;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 13px;
+            box-sizing: border-box;
+            outline: none;
+            box-shadow: var(--inset-shadow);
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .custom-date-input {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--main-teal);
+            box-shadow: var(--inset-shadow), 0 0 8px rgba(7, 208, 164, 0.3);
+        }
+
+        /* SMOOTH 3D SWITCHES */
+        .status-container {
+            background: rgba(255,255,255,0.03);
+            padding: 12px 15px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-glass);
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .status-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 22px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #243332;
+            transition: .4s;
+            border-radius: 34px;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background: linear-gradient(145deg, #ffffff, #d1d1d1);
+            transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-radius: 50%;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+        }
+
+        input:checked + .slider { background-color: var(--main-teal); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* 3D PUSH BUTTON */
+        .btn-update {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(145deg, var(--main-teal), #059e7d);
+            color: #061110;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.4), inset -2px -2px 5px rgba(0,0,0,0.2);
+            margin-top: 10px;
+        }
+
+        .btn-update:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 7px 7px 20px rgba(0,0,0,0.5);
+        }
+
+        /* 3D DASHBOARD ITEMS */
+        .dashboard-container {
+            width: 100%;
+            max-width: 380px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            padding: 20px;
+            border-radius: 24px;
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-3d);
+            margin-bottom: 50px;
+        }
+
+        .app-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .app-item:hover {
+            background: rgba(7, 208, 164, 0.05);
+            transform: scale(1.02);
+            box-shadow: 6px 6px 15px rgba(0,0,0,0.4);
+        }
+
+        .app-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            margin-right: 15px;
+            border: 2px solid var(--main-teal);
+            box-shadow: 0 0 10px rgba(7, 208, 164, 0.3);
+            object-fit: cover;
+        }
+
+        .app-details h4 { margin: 0; font-size: 13px; color: var(--light-mint); }
+        .app-details p { margin: 2px 0 0 0; font-size: 9px; color: #8b949e; }
+        
+        .update-counter-badge {
+            background: rgba(7, 208, 164, 0.15);
+            color: var(--main-teal);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-family: 'Orbitron', sans-serif;
+            border: 1px solid var(--main-teal);
+            margin-right: 10px;
+        }
+
+        .upcoming-badge {
+            background: var(--warning-orange);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            position: absolute;
+            top: -5px;
+            right: 50px;
+            box-shadow: 0 0 10px var(--warning-orange);
+            animation: pulse-glow 1.5s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.7; transform: scale(1); }
+        }
+
+        .btn-delete-list {
+            background: var(--error-red);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            font-size: 9px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+        }
+
+        /* --- 3D SMOOTH MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92);
+            display: none; justify-content: center; align-items: center;
+            z-index: 9999; backdrop-filter: blur(8px);
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 2px solid var(--main-teal);
+            width: 290px;
+            padding: 25px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(7, 208, 164, 0.3);
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .modal-title { font-family: 'Orbitron', sans-serif; color: var(--main-teal); font-size: 15px; margin-bottom: 12px; text-transform: uppercase; }
+        .modal-msg { font-size: 12px; color: #cfd8d7; margin-bottom: 25px; line-height: 1.5; }
+
+        .modal-btns { display: flex; justify-content: center; gap: 12px; }
+
+        .btn-modal {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+            transition: 0.2s;
+        }
+
+        .btn-confirm { background: var(--main-teal); color: #061110; }
+        .btn-cancel { background: #1a2e2b; color: #fff; border: 1px solid #334e4a; }
+        .btn-modal:active { transform: scale(0.92); }
+
+        /* 3D FLOATING CALENDAR */
+        .calendar-modal {
+            position: absolute;
+            top: 105%; left: 0; width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--main-teal);
+            border-radius: 18px;
+            padding: 15px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.8);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown { 0% { transform: translateY(-10px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-family: 'Orbitron', sans-serif; color: var(--main-teal); font-size: 11px; }
+        .cal-btn { background: #162a28; border: 1px solid #2d4643; color: white; padding: 5px 12px; border-radius: 8px; cursor: pointer; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .cal-day-head { font-size: 8px; color: var(--main-teal); font-weight: bold; text-align: center; }
+        .cal-day { font-size: 11px; padding: 8px 0; text-align: center; cursor: pointer; border-radius: 8px; transition: 0.2s; }
+        .cal-day:hover, .cal-day.selected { background: var(--main-teal); color: #000; font-weight: bold; box-shadow: 0 0 10px rgba(7, 208, 164, 0.5); }
+
+        .footer-status { text-align: center; font-size: 10px; margin-top: 20px; color: #5a6664; }
+        #sync_indicator { color: var(--main-teal); font-weight: bold; }
+        
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--main-teal); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- 3D CUSTOM MODAL -->
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modalTitle" class="modal-title">NOTIFICATION</div>
+            <div id="modalMsg" class="modal-msg">Message here...</div>
+            <div class="modal-btns">
+                <button id="modalCancelBtn" class="btn-modal btn-cancel" onclick="closeModal()">CANCEL</button>
+                <button id="modalOkBtn" class="btn-modal btn-confirm">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D ADMIN CONTROL PANEL -->
+    <div class="admin-card">
+        <!-- HEADER WITH LOGO ON LEFT -->
+        <div class="header-title-container">
+            <img src="https://i.postimg.cc/0QmNG9yj/IMG-20260308-235112.jpg" alt="Logo" class="main-round-logo">
+            <h2>Admin Control</h2>
+        </div>
+        
+        <div class="input-group">
+            <label style="color: var(--main-teal);">Target Package Name</label>
+            <input type="text" id="pkg_name" placeholder="com.update.rb" onchange="fetchData()">
+        </div>
+
+        <div class="section-title">Dialog Configuration</div>
+        
+        <div class="status-container">
+            <span class="status-text">Show Update Popup</span>
+            <label class="switch">
+                <input type="checkbox" id="is_active">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="status-container">
+            <span class="status-text">Enable RGB Border</span>
+            <label class="switch">
+                <input type="checkbox" id="rgb_border">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="input-group">
+            <label>Release Date (Logic)</label>
+            <div class="custom-date-input" onclick="toggleCalendar()">
+                <span id="display_date">Select Date</span>
+                <span style="color: var(--main-teal);">📅</span>
+            </div>
+            <input type="hidden" id="scheduled_date">
+            
+            <div id="calendarPopup" class="calendar-modal">
+                <div class="cal-header">
+                    <button class="cal-btn" onclick="prevMonth(event)">&#8249;</button>
+                    <span id="calMonthYear">Month Year</span>
+                    <button class="cal-btn" onclick="nextMonth(event)">&#8250;</button>
+                </div>
+                <div class="cal-grid" id="calDays"></div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>App Title</label>
+            <input type="text" id="title" placeholder="Ex: RB MODS">
+        </div>
+
+        <div class="input-group">
+            <label>Server Version & Visible Date</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="server_version" placeholder="v1.0" style="flex:1">
+                <input type="text" id="release_date" placeholder="25 Jan" style="flex:1">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Logo Image Direct Link</label>
+            <input type="text" id="logo" placeholder="https://imgur.com/logo.png">
+        </div>
+
+        <!-- NEW: Update Count Field for Editing -->
+        <div class="input-group">
+            <label>User Updates Count (Manual Sync)</label>
+            <input type="number" id="update_count" placeholder="0">
+        </div>
+
+        <div class="section-title">Attention Notification</div>
+
+        <div class="status-container">
+            <span class="status-text">Enable Attention</span>
+            <label class="switch">
+                <input type="checkbox" id="notif_show">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="notif_title" placeholder="Attention Title">
+        </div>
+
+        <div class="input-group">
+            <textarea id="notif_msg" rows="1" placeholder="Enter short message..."></textarea>
+        </div>
+
+        <button class="btn-update" onclick="saveToFirebase()">Push Changes</button>
+        
+        <div class="footer-status">
+            System: <span id="sync_indicator">Ready</span> | <span id="timestamp"></span>
+        </div>
+    </div>
+
+    <!-- 3D DASHBOARD -->
+    <div class="dashboard-container">
+        <div class="dashboard-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="margin:0; font-size:14px;">App Dashboard</h2>
+            <button class="btn-add-new" onclick="resetFormForNewApp()" style="background:var(--main-teal); border:none; padding:6px 15px; border-radius:8px; font-family:'Orbitron',sans-serif; font-size:9px; font-weight:bold; cursor:pointer; color:#000;">+ ADD</button>
+        </div>
+        <div class="app-list" id="dashboard_list">
+            <p style="text-align:center; font-size:10px; color:#5a6664;">Loading Apps...</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBu2HYPt14108_cO2mTBz7QLbD8-6aNlT8",
+            authDomain: "updatedialog-b4a6f.firebaseapp.com",
+            databaseURL: "https://updatedialog-b4a6f-default-rtdb.firebaseio.com",
+            projectId: "updatedialog-b4a6f",
+            storageBucket: "updatedialog-b4a6f.firebasestorage.app",
+            messagingSenderId: "655732646651",
+            appId: "1:655732646651:web:28158f9807b3dae15ec65e",
+            measurementId: "G-WF7TBB3WME"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // FIXED 3D MODAL FUNCTION
+        function showModal(title, msg, type, onConfirm) {
+            const overlay = document.getElementById('customModal');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMsg').innerText = msg;
+            overlay.style.display = 'flex';
+            document.getElementById('modalCancelBtn').style.display = (type === 'confirm') ? 'block' : 'none';
+            document.getElementById('modalOkBtn').onclick = function() { closeModal(); if (onConfirm) onConfirm(); };
+        }
+        function closeModal() { document.getElementById('customModal').style.display = 'none'; }
+
+        // 3D Calendar Logic
+        let currentCalDate = new Date();
+        let selectedDateString = "";
+        function toggleCalendar() { const cal = document.getElementById('calendarPopup'); cal.style.display = (cal.style.display === 'block') ? 'none' : 'block'; renderCalendar(); }
+        function prevMonth(e) { e.stopPropagation(); currentCalDate.setMonth(currentCalDate.getMonth() - 1); renderCalendar(); }
+        function nextMonth(e) { e.stopPropagation(); currentCalDate.setMonth(currentCalDate.getMonth() + 1); renderCalendar(); }
+        function renderCalendar() {
+            const monthYear = document.getElementById('calMonthYear'); const calDays = document.getElementById('calDays'); calDays.innerHTML = "";
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            monthYear.innerText = months[currentCalDate.getMonth()] + " " + currentCalDate.getFullYear();
+            const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+            dayLabels.forEach(d => { const h = document.createElement('div'); h.className="cal-day-head"; h.innerText=d; calDays.appendChild(h); });
+            const first = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), 1).getDay();
+            const total = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() + 1, 0).getDate();
+            for(let i=0; i<first; i++) calDays.appendChild(document.createElement('div'));
+            for(let d=1; d<=total; d++) {
+                const el = document.createElement('div'); el.className="cal-day"; el.innerText=d;
+                const f = `${currentCalDate.getFullYear()}-${String(currentCalDate.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                if(f === selectedDateString) el.classList.add('selected');
+                el.onclick=(e)=>{ e.stopPropagation(); selectedDateString=f; document.getElementById('scheduled_date').value=f; document.getElementById('display_date').innerText=f; document.getElementById('calendarPopup').style.display='none'; };
+                calDays.appendChild(el);
+            }
+        }
+        window.onclick = (e) => { if(!e.target.closest('.input-group')) document.getElementById('calendarPopup').style.display='none'; };
+
+        // Main Logic
+        window.onload = function() { loadDashboard(); };
+
+        function loadDashboard() {
+            database.ref("Apps").on('value', (s) => {
+                const list = document.getElementById('dashboard_list'); list.innerHTML = "";
+                const data = s.val();
+                if(data) {
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+
+                    Object.keys(data).forEach((key) => {
+                        const app = data[key]; 
+                        const pkg = key.replace(/_/g, '.');
+                        const updates = app.update_count || 0;
+                        
+                        // CHECK FOR UPCOMING STATUS (2 DAYS)
+                        let upcomingBadge = "";
+                        if(app.scheduled_date) {
+                            const parts = app.scheduled_date.split('-');
+                            const releaseDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                            releaseDate.setHours(0,0,0,0);
+                            
+                            const twoDaysPrior = new Date(releaseDate);
+                            twoDaysPrior.setDate(releaseDate.getDate() - 2);
+
+                            // If today is between (Release - 2 days) and (Release Date)
+                            if (today.getTime() >= twoDaysPrior.getTime() && today.getTime() < releaseDate.getTime()) {
+                                upcomingBadge = '<span class="upcoming-badge">UPCOMING</span>';
+                            }
+                        }
+                        
+                        const item = document.createElement('div'); 
+                        item.className="app-item";
+                        item.innerHTML = `
+                            ${upcomingBadge}
+                            <img src="${app.logo || 'https://i.postimg.cc/6q7HzcB4/Lo-Di-1000823948-jpg.png'}">
+                            <div class="app-details" onclick="editApp('${pkg}')" style="flex:1; cursor:pointer;">
+                                <h4>${app.title}</h4>
+                                <p>${pkg}</p>
+                            </div>
+                            <div class="update-counter-badge" title="Users who clicked update">${updates} UP</div>
+                            <button class="btn-delete-list" onclick="deleteApp('${key}', event)">DEL</button>
+                        `;
+                        list.appendChild(item);
+                    });
+                } else list.innerHTML = '<p style="text-align:center;font-size:10px;color:#5a6664;">No entries found.</p>';
+            });
+        }
+
+        function resetFormForNewApp() {
+            document.getElementById('pkg_name').value=""; document.getElementById('is_active').checked=false;
+            document.getElementById('rgb_border').checked=false; document.getElementById('scheduled_date').value="";
+            document.getElementById('display_date').innerText="Select Date"; selectedDateString="";
+            document.getElementById('server_version').value=""; document.getElementById('release_date').value="";
+            document.getElementById('title').value=""; document.getElementById('logo').value="";
+            document.getElementById('update_count').value="0";
+            document.getElementById('notif_show').checked=false; document.getElementById('notif_title').value="";
+            document.getElementById('notif_msg').value=""; document.getElementById('sync_indicator').innerText="New Mode";
+        }
+
+        function editApp(p) { document.getElementById('pkg_name').value=p; fetchData(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+        function deleteApp(k, e) { e.stopPropagation(); showModal("DELETE APP?", "Configuration for this app will be removed.", "confirm", () => { database.ref("Apps/"+k).remove().then(()=>showModal("SUCCESS","Removed successfully.","alert")); }); }
+
+        function fetchData() {
+            let pRaw = document.getElementById('pkg_name').value.trim(); if(!pRaw) return;
+            let p = pRaw.replace(/\./g, '_'); document.getElementById('sync_indicator').innerText="Sync...";
+            database.ref("Apps/"+p).once('value', (s) => {
+                const d = s.val();
+                if(d) {
+                    document.getElementById('is_active').checked = d.is_active;
+                    document.getElementById('rgb_border').checked = (d.rgb_border==="YES");
+                    document.getElementById('scheduled_date').value = d.scheduled_date || "";
+                    document.getElementById('display_date').innerText = d.scheduled_date || "Select Date";
+                    selectedDateString = d.scheduled_date || "";
+                    document.getElementById('server_version').value = d.server_version || "";
+                    document.getElementById('release_date').value = d.release_date || "";
+                    document.getElementById('title').value = d.title || "";
+                    document.getElementById('logo').value = d.logo || "";
+                    document.getElementById('update_count').value = d.update_count || 0;
+                    document.getElementById('notif_show').checked = (d.notif_show==="YES");
+                    document.getElementById('notif_title').value = d.notif_title || "";
+                    document.getElementById('notif_msg').value = d.notif_msg || "";
+                    document.getElementById('sync_indicator').innerText="ONLINE";
+                    document.getElementById('timestamp').innerText=new Date().toLocaleTimeString();
+                } else document.getElementById('sync_indicator').innerText="Not Found";
+            });
+        }
+
+        function saveToFirebase() {
+            let pRaw = document.getElementById('pkg_name').value.trim(); if(!pRaw){ showModal("REQUIRED","Please enter Package Name!","alert"); return; }
+            let p = pRaw.replace(/\./g, '_');
+            
+            const currentUpdates = parseInt(document.getElementById('update_count').value) || 0;
+
+            const d = {
+                is_active: document.getElementById('is_active').checked,
+                rgb_border: document.getElementById('rgb_border').checked ? "YES" : "NO",
+                scheduled_date: document.getElementById('scheduled_date').value,
+                server_version: document.getElementById('server_version').value || "v1.0",
+                release_date: document.getElementById('release_date').value || "",
+                title: document.getElementById('title').value || "App",
+                logo: document.getElementById('logo').value || "",
+                update_count: currentUpdates,
+                notif_show: document.getElementById('notif_show').checked ? "YES" : "NO",
+                notif_title: document.getElementById('notif_title').value || "",
+                notif_msg: document.getElementById('notif_msg').value || ""
+            };
+            
+            database.ref("Apps/"+p).set(d).then(() => { 
+                showModal("PUSHED","Firebase Updated!","alert"); 
+                fetchData(); 
+            });
+        }
+    </script>
+</body>
+</html>
