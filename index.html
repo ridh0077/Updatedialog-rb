@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RBMod Premium Admin Control</title>
+    <!-- Google Fonts: Inter for smoothness & Space Grotesk for Tech feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- PREMIUM CYBER-GLASS DESIGN SYSTEM --- */
+        :root {
+            --bg-color: #05080d;
+            --accent-cyan: #00f2ff;
+            --accent-purple: #7000ff;
+            --card-bg: rgba(13, 19, 33, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(0, 0, 0, 0.4);
+            --text-main: #e0e6ed;
+            --text-dim: #94a3b8;
+            --success-glow: #10b981;
+            --error-red: #ff4757;
+            --grad-primary: linear-gradient(135deg, #00f2ff 0%, #7000ff 100%);
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            outline: none !important;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(112, 0, 255, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- SMOOTH PRELOADER --- */
+        #preloader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #05080d;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 100000;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+
+        .loader-content {
+            position: relative;
+            width: 100px; height: 100px;
+        }
+
+        .loader-circle {
+            position: absolute;
+            width: 100%; height: 100%;
+            border: 3px solid transparent;
+            border-top: 3px solid var(--accent-cyan);
+            border-radius: 50%;
+            animation: rotate 1s linear infinite;
+        }
+
+        .loader-circle::before {
+            content: '';
+            position: absolute;
+            top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border: 3px solid transparent;
+            border-top: 3px solid var(--accent-purple);
+            border-radius: 50%;
+            animation: rotate 2s linear infinite;
+        }
+
+        .loader-logo {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+
+        @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- MAIN WRAPPER ANIMATION --- */
+        #main-wrapper {
+            width: 100%;
+            max-width: 420px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* --- CARD STYLE (GLASSMORPHISM) --- */
+        .premium-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 35px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: visible; 
+        }
+
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            transition: 0.5s;
+        }
+
+        .premium-card:hover::before { left: 100%; }
+
+        .header-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .header-logo {
+            width: 50px; height: 50px;
+            border-radius: 15px;
+            border: 2px solid var(--accent-cyan);
+            padding: 2px;
+        }
+
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 22px;
+            margin: 0;
+            background: var(--grad-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            margin: 25px 0 15px 0;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+
+        /* --- INPUT FIELDS --- */
+        .field-group { margin-bottom: 20px; position: relative; }
+        label { 
+            display: block; 
+            font-size: 11px; 
+            color: var(--text-dim); 
+            margin-bottom: 8px; 
+            margin-left: 5px;
+            font-weight: 600;
+        }
+
+        input, textarea, .fake-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 14px 18px;
+            color: white;
+            font-size: 14px;
+            transition: 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
+            background: rgba(0,0,0,0.6);
+        }
+
+        /* --- CYBER PILL TOGGLES (NEW UI) --- */
+        .cyber-pill-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .pill-toggle {
+            flex: 1;
+            position: relative;
+        }
+
+        .pill-toggle input { display: none; }
+
+        .pill-toggle label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 5px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 22px;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .pill-toggle label span {
+            font-size: 8px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .pill-toggle label .indicator-dot {
+            width: 8px;
+            height: 8px;
+            background: #1e293b;
+            border-radius: 50%;
+            transition: 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Active Pill State */
+        .pill-toggle input:checked + label {
+            background: rgba(0, 242, 255, 0.08);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 10px 20px rgba(0, 242, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .pill-toggle input:checked + label span {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 5px rgba(0, 242, 255, 0.4);
+        }
+
+        .pill-toggle input:checked + label .indicator-dot {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
+        }
+
+        /* --- CUSTOM ELITE SELECT DESIGN --- */
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .custom-select-trigger {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 14px 18px;
+            color: white;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .custom-select-trigger:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .custom-select-trigger.active {
+            border-radius: 16px 16px 0 0;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+        }
+
+        .custom-options {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            background: #0d1321;
+            border: 1px solid var(--accent-cyan);
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            display: none;
+            max-height: 280px;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            animation: dropdownSlide 0.3s ease-out;
+        }
+
+        @keyframes dropdownSlide {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .custom-option {
+            padding: 14px 18px;
+            font-size: 13px;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .custom-option:hover {
+            background: linear-gradient(90deg, rgba(0, 242, 255, 0.1), transparent);
+            color: var(--accent-cyan);
+            padding-left: 25px;
+        }
+
+        .custom-option.selected {
+            background: rgba(0, 242, 255, 0.15);
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        .custom-option.selected::after {
+            content: '●';
+            margin-left: auto;
+            font-size: 8px;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 8px var(--accent-cyan);
+        }
+
+        /* --- STANDARD TOGGLE ROW --- */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+            padding: 14px 18px;
+            border-radius: 18px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+
+        .toggle-row span { font-size: 13px; font-weight: 500; }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px; height: 26px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #1e293b;
+            transition: .4s; border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute; content: "";
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
+            background: white; transition: .4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        input:checked + .slider { background: var(--grad-primary); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* --- BUTTONS --- */
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            border-radius: 20px;
+            border: none;
+            background: var(--grad-primary);
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(112, 0, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(112, 0, 255, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-add {
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 8px 20px;
+            border-radius: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* --- DASHBOARD LIST --- */
+        .search-box {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .search-box input {
+            padding-left: 45px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .search-box::after {
+            content: '🔍';
+            position: absolute;
+            left: 18px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            opacity: 0.5;
+        }
+
+        .app-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 22px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .app-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--accent-cyan);
+            transform: scale(1.02);
+        }
+
+        .app-img-wrap {
+            position: relative;
+            width: 55px; height: 55px;
+            flex-shrink: 0;
+        }
+
+        .app-img-wrap img {
+            width: 100%; height: 100%;
+            border-radius: 14px;
+            object-fit: cover;
+            border: 1px solid var(--glass-border);
+        }
+
+        .live-indicator {
+            position: absolute;
+            top: -4px; right: -4px;
+            width: 12px; height: 12px;
+            background: var(--success-glow);
+            border-radius: 50%;
+            border: 2px solid var(--bg-color);
+            box-shadow: 0 0 10px var(--success-glow);
+        }
+
+        .app-info { flex-grow: 1; overflow: hidden; }
+        .app-info h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .app-info p { margin: 2px 0 0 0; font-size: 10px; color: var(--text-dim); }
+
+        .btn-delete {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--error-red);
+            border: 1px solid var(--error-red);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* --- CALENDAR MODAL --- */
+        .calendar-box {
+            position: absolute;
+            top: 100%; left: 0; width: 100%;
+            background: #0d1321;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            margin-top: 10px;
+        }
+
+        /* --- FIXED CUSTOM ALERT MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 9999999;
+            margin: 0;
+            padding: 0;
+        }
+
+        .modal-content {
+            background: #0d1321;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 85%; 
+            max-width: 320px;
+            padding: 30px;
+            border-radius: 35px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            transform: scale(0.85);
+            opacity: 0;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay[style*="display: flex"] .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .status-footer {
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 30px;
+            letter-spacing: 1px;
+            opacity: 0.6;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <div class="loader-content">
+            <div class="loader-circle"></div>
+            <img src="https://i.postimg.cc/0QmNG9yj/IMG-20260308-235112.jpg" class="loader-logo">
+        </div>
+        <p style="margin-top:25px; font-family:'Space Grotesk'; font-size:12px; letter-spacing:3px; color:var(--accent-cyan);">RBMOD PREMIUM</p>
+    </div>
+
+    <!-- NOTIFICATION MODAL (CENTERED) -->
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="font-family:'Space Grotesk'; color:var(--accent-cyan); margin-top:0; font-size: 20px;">NOTICE</h3>
+            <p id="modalMsg" style="font-size:13px; line-height:1.6; color:#9ca3af; margin: 20px 0;"></p>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button id="modalCancelBtn" onclick="closeModal()" style="flex:1; padding:14px; border-radius:15px; background:#1f2937; border:none; color:white; font-size:11px; font-weight:600; cursor:pointer;">CANCEL</button>
+                <button id="modalOkBtn" style="flex:1; padding:14px; border-radius:15px; background:var(--grad-primary); border:none; color:white; font-size:11px; font-weight:700; cursor:pointer; box-shadow: 0 5px 15px rgba(0, 242, 255, 0.2);">OKAY</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-wrapper">
+        
+        <!-- MAIN ADMIN PANEL -->
+        <div class="premium-card">
+            <div class="header-section">
+                <img src="https://i.postimg.cc/0QmNG9yj/IMG-20260308-235112.jpg" class="header-logo">
+                <div>
+                    <h2>Admin Center</h2>
+                    <p style="margin:0; font-size:10px; color:var(--text-dim);">SYSTEM VERSION 5.0 GOLD</p>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label>TARGET PACKAGE ID</label>
+                <input type="text" id="pkg_name" placeholder="com.rbmods.app" onchange="fetchData()">
+            </div>
+
+            <div class="section-label">Visual Configuration</div>
+            
+            <!-- NEW CYBER PILL ROW -->
+            <div class="cyber-pill-row">
+                <div class="pill-toggle">
+                    <input type="checkbox" id="animations_enabled">
+                    <label for="animations_enabled">
+                        <span>Animations</span>
+                        <div class="indicator-dot"></div>
+                    </label>
+                </div>
+                <div class="pill-toggle">
+                    <input type="checkbox" id="themes_enabled">
+                    <label for="themes_enabled">
+                        <span>Theme Sys</span>
+                        <div class="indicator-dot"></div>
+                    </label>
+                </div>
+                <div class="pill-toggle">
+                    <input type="checkbox" id="rgb_border">
+                    <label for="rgb_border">
+                        <span>RGB Border</span>
+                        <div class="indicator-dot"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- PREMIUM CUSTOM DROPDOWN -->
+            <div class="field-group">
+                <label>DIALOG THEME STYLE</label>
+                <div class="custom-select-wrapper">
+                    <div class="custom-select-trigger" id="theme_trigger" onclick="toggleCustomSelect()">
+                        <span id="selected_theme_text">⚡ Dynamic Auto Cycle</span>
+                        <span style="font-size:10px; opacity:0.5;">▼</span>
+                    </div>
+                    <div class="custom-options" id="theme_options_list">
+                        <div class="custom-option selected" data-value="auto" onclick="selectTheme('auto', '⚡ Dynamic Auto Cycle')">⚡ Dynamic Auto Cycle</div>
+                        <div class="custom-option" data-value="0" onclick="selectTheme('0', '🟢 Emerald Gold')">🟢 Emerald Gold</div>
+                        <div class="custom-option" data-value="1" onclick="selectTheme('1', '🌸 Sakura Pink')">🌸 Sakura Pink</div>
+                        <div class="custom-option" data-value="2" onclick="selectTheme('2', '🌌 Deep Space')">🌌 Deep Space</div>
+                        <div class="custom-option" data-value="3" onclick="selectTheme('3', '🍇 Purple Neon')">🍇 Purple Neon</div>
+                        <div class="custom-option" data-value="4" onclick="selectTheme('4', '🔘 Carbon Grey')">🔘 Carbon Grey</div>
+                        <div class="custom-option" data-value="5" onclick="selectTheme('5', '🔴 Blood Red')">🔴 Blood Red</div>
+                        <div class="custom-option" data-value="6" onclick="selectTheme('6', '🌊 Ocean Blue')">🌊 Ocean Blue</div>
+                        <div class="custom-option" data-value="7" onclick="selectTheme('7', '👑 Royal Gold')">👑 Royal Gold</div>
+                        <div class="custom-option" data-value="8" onclick="selectTheme('8', '💎 Cyber Cyan')">💎 Cyber Cyan</div>
+                        <div class="custom-option" data-value="9" onclick="selectTheme('9', '🌈 Rainbow Blast')">🌈 Rainbow Blast</div>
+                    </div>
+                </div>
+                <!-- Hidden input for value storage -->
+                <input type="hidden" id="theme_index" value="auto">
+            </div>
+
+            <div class="section-label">Update Logic</div>
+
+            <div class="toggle-row" style="background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2);">
+                <span style="color:var(--accent-cyan); font-weight:700;">ACTIVE UPDATE POPUP</span>
+                <label class="switch"><input type="checkbox" id="is_active"><span class="slider"></span></label>
+            </div>
+
+            <div class="field-group" style="position:relative;">
+                <label>SCHEDULE RELEASE DATE</label>
+                <div class="fake-input" onclick="toggleCalendar()" style="cursor:pointer; display:flex; justify-content:space-between;">
+                    <span id="display_date">Select Date</span>
+                    <span>📅</span>
+                </div>
+                <input type="hidden" id="scheduled_date">
+                
+                <div id="calendarPopup" class="calendar-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <button onclick="prevMonth(event)" style="background:none; border:none; color:var(--accent-cyan); font-size:20px;">‹</button>
+                        <span id="calMonthYear" style="font-weight:700; font-size:14px; color:white;"></span>
+                        <button onclick="nextMonth(event)" style="background:none; border:none; color:var(--accent-cyan); font-size:20px;">›</button>
+                    </div>
+                    <div id="calDays" style="display:grid; grid-template-columns:repeat(7,1fr); gap:5px; text-align:center;"></div>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label>APP DISPLAY TITLE</label>
+                <input type="text" id="title" placeholder="RB MODS OFFICIAL">
+            </div>
+
+            <div style="display: flex; gap: 15px;">
+                <div class="field-group" style="flex:1;">
+                    <label>VERSION</label>
+                    <input type="text" id="server_version" placeholder="v2.0">
+                </div>
+                <div class="field-group" style="flex:1;">
+                    <label>RELEASE STRING</label>
+                    <input type="text" id="release_date" placeholder="Mar 10">
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label>LOGO URL (DIRECT LINK)</label>
+                <input type="text" id="logo" placeholder="https://image.com/logo.png">
+            </div>
+
+            <div class="section-label">Attention Alert (Notification)</div>
+
+            <div class="toggle-row">
+                <span>Display Alert</span>
+                <label class="switch"><input type="checkbox" id="notif_show"><span class="slider"></span></label>
+            </div>
+
+            <div class="field-group">
+                <input type="text" id="notif_title" placeholder="Alert Header">
+            </div>
+            <div class="field-group">
+                <textarea id="notif_msg" rows="2" placeholder="Write alert message here..."></textarea>
+            </div>
+
+            <button class="btn-primary" onclick="saveToFirebase()">Deploy Changes</button>
+            
+            <div style="text-align:center; margin-top:15px; font-size:10px; color:var(--text-dim);">
+                SERVER STATUS: <span id="sync_indicator" style="color:var(--accent-cyan); font-weight:800;">IDLE</span> | <span id="timestamp">--:--</span>
+            </div>
+        </div>
+
+        <!-- DASHBOARD SECTION -->
+        <div class="premium-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="font-size:18px;">Application Fleet</h2>
+                <button class="btn-add" onclick="resetFormForNewApp()">+ NEW APP</button>
+            </div>
+
+            <div class="toggle-row" style="margin-top:20px; background: rgba(112, 0, 255, 0.05); border: 1px dashed var(--accent-purple);">
+                <span style="font-size:11px; font-weight:800; color:var(--accent-purple);">MASTER DIALOG TOGGLE</span>
+                <label class="switch"><input type="checkbox" id="master_switch" onchange="confirmMasterToggle(this)"><span class="slider"></span></label>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="appSearch" placeholder="Filter by name or package..." onkeyup="searchApps()">
+            </div>
+
+            <div id="dashboard_list">
+                <!-- Apps will appear here -->
+                <p style="text-align:center; font-size:11px; opacity:0.5; padding:20px;">Connecting to secure database...</p>
+            </div>
+        </div>
+
+        <div class="status-footer">
+            DEVELOPED BY RBMODS &copy; 2025 ALL RIGHTS RESERVED
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBu2HYPt14108_cO2mTBz7QLbD8-6aNlT8",
+            authDomain: "updatedialog-b4a6f.firebaseapp.com",
+            databaseURL: "https://updatedialog-b4a6f-default-rtdb.firebaseio.com",
+            projectId: "updatedialog-b4a6f",
+            storageBucket: "updatedialog-b4a6f.firebasestorage.app",
+            messagingSenderId: "655732646651",
+            appId: "1:655732646651:web:28158f9807b3dae15ec65e",
+            measurementId: "G-WF7TBB3WME"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // --- PRELOADER LOGIC ---
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const loader = document.getElementById('preloader');
+                const content = document.getElementById('main-wrapper');
+                loader.style.opacity = '0'; 
+                loader.style.visibility = 'hidden';
+                content.style.opacity = '1'; 
+                content.style.transform = 'translateY(0)';
+                loadDashboard();
+            }, 2000);
+        });
+
+        // --- CUSTOM ELITE SELECT LOGIC ---
+        function toggleCustomSelect() {
+            const list = document.getElementById('theme_options_list');
+            const trigger = document.getElementById('theme_trigger');
+            const isOpen = list.style.display === 'block';
+            list.style.display = isOpen ? 'none' : 'block';
+            trigger.classList.toggle('active', !isOpen);
+        }
+
+        function selectTheme(val, text) {
+            document.getElementById('theme_index').value = val;
+            document.getElementById('selected_theme_text').innerText = text;
+            
+            const options = document.querySelectorAll('.custom-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            const selectedOpt = document.querySelector(`.custom-option[data-value="${val}"]`);
+            if(selectedOpt) selectedOpt.classList.add('selected');
+            
+            document.getElementById('theme_options_list').style.display = 'none';
+            document.getElementById('theme_trigger').classList.remove('active');
+        }
+
+        window.addEventListener('click', function(e) {
+            if (!document.querySelector('.custom-select-wrapper').contains(e.target)) {
+                document.getElementById('theme_options_list').style.display = 'none';
+                document.getElementById('theme_trigger').classList.remove('active');
+            }
+        });
+
+        // --- FIXED MODAL HANDLER ---
+        function showModal(title, msg, type, onConfirm) {
+            const overlay = document.getElementById('customModal');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMsg').innerText = msg;
+            
+            overlay.style.display = 'flex';
+            
+            document.getElementById('modalCancelBtn').style.display = (type === 'confirm') ? 'block' : 'none';
+            document.getElementById('modalOkBtn').onclick = function() { 
+                closeModal(); 
+                if (onConfirm) onConfirm(); 
+            };
+        }
+
+        function closeModal() { 
+            const overlay = document.getElementById('customModal');
+            overlay.style.display = 'none'; 
+        }
+
+        // --- CALENDAR LOGIC ---
+        let currentCalDate = new Date();
+        let selectedDateString = "";
+        function toggleCalendar() { 
+            const cal = document.getElementById('calendarPopup'); 
+            cal.style.display = (cal.style.display === 'block') ? 'none' : 'block'; 
+            renderCalendar(); 
+        }
+        function prevMonth(e) { e.stopPropagation(); currentCalDate.setMonth(currentCalDate.getMonth() - 1); renderCalendar(); }
+        function nextMonth(e) { e.stopPropagation(); currentCalDate.setMonth(currentCalDate.getMonth() + 1); renderCalendar(); }
+        function renderCalendar() {
+            const monthYear = document.getElementById('calMonthYear'); const calDays = document.getElementById('calDays'); calDays.innerHTML = "";
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            monthYear.innerText = months[currentCalDate.getMonth()] + " " + currentCalDate.getFullYear();
+            const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+            dayLabels.forEach(d => { 
+                const h = document.createElement('div'); h.innerText=d; 
+                h.style.fontSize="9px"; h.style.color="var(--accent-cyan)"; h.style.fontWeight="bold"; calDays.appendChild(h); 
+            });
+            const first = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), 1).getDay();
+            const total = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() + 1, 0).getDate();
+            for(let i=0; i<first; i++) calDays.appendChild(document.createElement('div'));
+            for(let d=1; d<=total; d++) {
+                const el = document.createElement('div'); el.innerText=d;
+                el.style.padding="8px 0"; el.style.cursor="pointer"; el.style.borderRadius="8px"; el.style.fontSize="11px";
+                const f = `${currentCalDate.getFullYear()}-${String(currentCalDate.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                if(f === selectedDateString) { el.style.background="var(--accent-cyan)"; el.style.color="#000"; el.style.fontWeight="bold"; }
+                el.onclick=(e)=>{ 
+                    e.stopPropagation(); selectedDateString=f; 
+                    document.getElementById('scheduled_date').value=f; 
+                    document.getElementById('display_date').innerText=f; 
+                    document.getElementById('calendarPopup').style.display='none'; 
+                };
+                calDays.appendChild(el);
+            }
+        }
+
+        // --- DASHBOARD FUNCTIONS ---
+        function loadDashboard() {
+            database.ref("Apps").on('value', (s) => {
+                const list = document.getElementById('dashboard_list'); list.innerHTML = "";
+                const data = s.val();
+                if(data) {
+                    Object.keys(data).forEach((key) => {
+                        const app = data[key]; 
+                        const pkg = key.replace(/_/g, '.');
+                        const isLive = app.is_active === true;
+
+                        const item = document.createElement('div'); 
+                        item.className="app-card";
+                        item.innerHTML = `
+                            <div class="app-img-wrap" onclick="editApp('${pkg}')">
+                                ${isLive ? '<div class="live-indicator"></div>' : ''}
+                                <img src="${app.logo || 'https://i.postimg.cc/6q7HzcB4/Lo-Di-1000823948-jpg.png'}">
+                            </div>
+                            <div class="app-info" onclick="editApp('${pkg}')">
+                                <h4>${app.title || 'Unknown App'}</h4>
+                                <p>${pkg}</p>
+                                <div style="display:flex; gap:8px; margin-top:5px;">
+                                    <span style="font-size:8px; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">${app.server_version || 'v1.0'}</span>
+                                    <span style="font-size:8px; background:rgba(0,242,255,0.1); color:var(--accent-cyan); padding:2px 6px; border-radius:4px;">${app.update_count || 0} UPDATES</span>
+                                </div>
+                            </div>
+                            <button class="btn-delete" onclick="deleteApp('${key}', event)">DELETE</button>
+                        `;
+                        list.appendChild(item);
+                    });
+                } else list.innerHTML = '<p style="text-align:center;font-size:11px;opacity:0.5; padding:20px;">No apps registered yet.</p>';
+            });
+        }
+
+        function searchApps() {
+            let filter = document.getElementById('appSearch').value.toLowerCase();
+            let items = document.getElementsByClassName('app-card');
+            Array.from(items).forEach(item => {
+                let text = item.innerText.toLowerCase();
+                item.style.display = text.includes(filter) ? "flex" : "none";
+            });
+        }
+
+        function editApp(p) { 
+            document.getElementById('pkg_name').value=p; 
+            fetchData(); 
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        }
+
+        function deleteApp(k, e) { 
+            e.stopPropagation(); 
+            showModal("CONFIRM DELETE", "Are you sure you want to remove this app from database?", "confirm", () => { 
+                database.ref("Apps/"+k).remove().then(()=>showModal("DELETED","Application removed successfully.","alert")); 
+            }); 
+        }
+
+        function resetFormForNewApp() {
+            document.getElementById('pkg_name').value=""; 
+            document.getElementById('is_active').checked=false;
+            document.getElementById('animations_enabled').checked=true;
+            document.getElementById('themes_enabled').checked=true;
+            document.getElementById('rgb_border').checked=true; 
+            document.getElementById('scheduled_date').value="";
+            document.getElementById('display_date').innerText="Select Date"; 
+            selectedDateString="";
+            document.getElementById('server_version').value=""; 
+            document.getElementById('release_date').value="";
+            document.getElementById('title').value=""; 
+            document.getElementById('logo').value="";
+            document.getElementById('notif_show').checked=false; 
+            document.getElementById('notif_title').value="";
+            document.getElementById('notif_msg').value=""; 
+            selectTheme('auto', '⚡ Dynamic Auto Cycle');
+            document.getElementById('sync_indicator').innerText="NEW ENTRY";
+        }
+
+        function confirmMasterToggle(checkbox) {
+            const newState = checkbox.checked;
+            showModal("GLOBAL ACTION", `Set Dialog visibility to ${newState ? 'ON' : 'OFF'} for ALL apps?`, "confirm", () => {
+                database.ref("Apps").once('value', (snapshot) => {
+                    const apps = snapshot.val();
+                    if (!apps) return;
+                    const updates = {};
+                    Object.keys(apps).forEach((key) => { updates[`Apps/${key}/is_active`] = newState; });
+                    database.ref().update(updates).then(() => {
+                        showModal("SUCCESS", "All applications have been updated.", "alert");
+                    });
+                });
+            });
+        }
+
+        function fetchData() {
+            let pRaw = document.getElementById('pkg_name').value.trim(); if(!pRaw) return;
+            let p = pRaw.replace(/\./g, '_'); 
+            document.getElementById('sync_indicator').innerText="SYNCING...";
+            database.ref("Apps/"+p).once('value', (s) => {
+                const d = s.val();
+                if(d) {
+                    document.getElementById('is_active').checked = d.is_active || false;
+                    document.getElementById('animations_enabled').checked = (d.animations_enabled !== false);
+                    document.getElementById('themes_enabled').checked = (d.themes_enabled !== false);
+                    document.getElementById('rgb_border').checked = (d.rgb_border_enabled !== false);
+                    document.getElementById('scheduled_date').value = d.scheduled_date || "";
+                    document.getElementById('display_date').innerText = d.scheduled_date || "Select Date";
+                    selectedDateString = d.scheduled_date || "";
+                    document.getElementById('server_version').value = d.server_version || "";
+                    document.getElementById('release_date').value = d.release_date || "";
+                    document.getElementById('title').value = d.title || "";
+                    document.getElementById('logo').value = d.logo || "";
+                    document.getElementById('notif_show').checked = (d.notif_show==="YES");
+                    document.getElementById('notif_title').value = d.notif_title || "";
+                    document.getElementById('notif_msg').value = d.notif_msg || "";
+                    
+                    const savedTheme = d.theme_index || "auto";
+                    const themeTextEl = document.querySelector(`.custom-option[data-value="${savedTheme}"]`);
+                    if(themeTextEl) {
+                        selectTheme(savedTheme, themeTextEl.innerText);
+                    } else {
+                        selectTheme('auto', '⚡ Dynamic Auto Cycle');
+                    }
+
+                    document.getElementById('sync_indicator').innerText="CONNECTED";
+                    document.getElementById('timestamp').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                } else {
+                    document.getElementById('sync_indicator').innerText="NOT FOUND";
+                }
+            });
+        }
+
+        function saveToFirebase() {
+            let pRaw = document.getElementById('pkg_name').value.trim(); 
+            if(!pRaw){ showModal("ERROR","Please enter a Package Name.","alert"); return; }
+            let p = pRaw.replace(/\./g, '_');
+            
+            const data = {
+                is_active: document.getElementById('is_active').checked,
+                animations_enabled: document.getElementById('animations_enabled').checked,
+                themes_enabled: document.getElementById('themes_enabled').checked,
+                rgb_border_enabled: document.getElementById('rgb_border').checked,
+                scheduled_date: document.getElementById('scheduled_date').value,
+                server_version: document.getElementById('server_version').value || "v1.0",
+                release_date: document.getElementById('release_date').value || "",
+                title: document.getElementById('title').value || "App",
+                logo: document.getElementById('logo').value || "",
+                notif_show: document.getElementById('notif_show').checked ? "YES" : "NO",
+                notif_title: document.getElementById('notif_title').value || "",
+                notif_msg: document.getElementById('notif_msg').value || "",
+                theme_index: document.getElementById('theme_index').value
+            };
+
+            database.ref("Apps/"+p).update(data).then(() => { 
+                showModal("DEPLOYED","Server updated successfully!","alert"); 
+                fetchData(); 
+            }).catch(err => {
+                showModal("FAILED","Error updating database.","alert");
+            });
+        }
+    </script>
+</body>
+</html>
